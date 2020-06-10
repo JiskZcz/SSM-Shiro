@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- shiro配置 -->
+    <!-- Realm -->
+    <bean id="myRealm" class="com.my.ssm.Shiro.MyRealm">
+
+    </bean>
+    <!-- SecurityManager -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myRealm"/>
+    </bean>
+    <bean id="anyRolesAuthorizationFilter" class="com.my.ssm.Shiro.AnyRolesAuthorizationFilter"/>
+    <!-- shiroFilter -->
+    <bean  id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/login" /> <!-- 登录地址 -->
+        <property name="unauthorizedUrl" value="/unauthorizedUrl" /> <!-- 没有授权返回地址 -->
+        <property name="filters">
+            <map>
+                <entry key="hasAnyRoles" value-ref="anyRolesAuthorizationFilter"/>
+            </map>
+        </property>
+        <property name="filterChainDefinitions">
+            <value>          <!-- **代表任意子目录 -->
+                /login = anon
+                /logout = anon
+                /main = hasAnyRoles["PM,SE,PG,TL,GL,QC,SA,CMO/CMS,SYSTEM,TS"]
+                /user/** = hasAnyRoles["PM,SE,PG,TL,GL,QC,SA,CMO/CMS,SYSTEM"]
+                /role/** = hasAnyRoles["PM,GL,TL,SA,SYSTEM"]
+                /permission/** = roles[PM]
+            </value>
+        </property>
+    </bean>
+
+</beans>

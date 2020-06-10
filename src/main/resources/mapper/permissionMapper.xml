@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.my.ssm.dao.permissionMapper">
+    <resultMap id="query" type="com.my.ssm.bean.Permission">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="name" property="name" />
+        <result column="pid" property="pid" />
+        <result column="icon" property="icon" />
+    </resultMap>
+    <resultMap id="queryShiro" type="com.my.ssm.bean.Permission">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="ENname" property="ENname" />
+    </resultMap>
+    <!-- 查找所有数据 -->
+    <select id="queryAll" resultMap="query">
+        select * from permission
+    </select>
+
+    <!-- 回显数据 -->
+    <select id="queryPermissionidsByRoleid" resultType="int">
+        select permissionid from role_permission where roleid = #{roleid}
+    </select>
+    <!-- 根据userName 查找对应权限 -->
+    <select id="getPermissionsByUserName" resultMap="queryShiro">
+        select id,ENname from permission where id in
+        (select permissionid from role_permission where roleid in
+        (select roleid from user_role where userid in
+        (SELECT id FROM user where name = #{userName})))
+    </select>
+</mapper>
